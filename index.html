@@ -3,33 +3,75 @@
 <META NAME="GENERATOR" Content="Microsoft Visual Studio">
 <TITLE></TITLE>
     <style>
-        body{
+        body {
             padding:15px;
         }
+
         #serverDataStream{
             background: #333;
             color: forestgreen;
-            width: 100%;
-            min-height: 300px;
+            width:100%;
+            min-height:300px;
             margin-bottom: 15px;
         }
-        #messageText{
-            width: 90%;
+
+        #messageText {
+            width:90%;
             font-size:15px;
+        }
+
+        button{
+            background: lime;
+            font-size:20px;
+            padding:5px;
         }
     </style>
 </HEAD>
 <BODY>
-<div> <h1>SkillChatserver3021</h1>
-    <div id="serverDataStream">
+    <div>
+        <h1>ConsoleApplication2</h1>
+        <div id="serverDataStream">
+
+        </div>
+        <input type="text" id="messageText" />
+        <button id="sendButton">SEND</button>
+
+        <button class="eventType" rel="PRIVATE_MESSAGE::">Private Message</button>
+        <button class="eventType" rel="SET_NAME::">Set Name</button>
 
     </div>
+    <script>
+        window.addEventListener("load", () => {
+            const stream = document.querySelector("#serverDataStream");
 
-    <input type="text" id="#messageText" />
-    <button> Send</button>
-    </div>
-    <script>window.addEventListener("load", () => {
+            function log(data) {
+                const line = document.createElement("div");
+                line.className = "logLine";
+                line.innerText = data;
+                stream.appendChild(line);
+            }
 
+            const client = new WebSocket("ws://localhost:9001/");
+            client.onmessage = ({ data }) => {
+                console.log("FROM SERVER: ", data);
+                log(data);
+            }
+
+            const button = document.querySelector("#sendButton");
+            const messageInput = document.querySelector("#messageText");
+            button.addEventListener("click", () => {
+                client.send(messageInput.value);
+                log(messageInput.value);
+                messageInput.value = "";
+            });
+
+            const eventTypeButtons = document.querySelectorAll(".eventType");
+            eventTypeButtons.forEach((b) => {
+                b.addEventListener("click", () => {
+                    messageInput.value = b.getAttribute("rel");
+                    messageInput.focus();
+                });
+            });
         });
     </script>
 
